@@ -8,7 +8,85 @@ info:
       https://d1wzvcwrgjaybe.cloudfront.net/repos/games/codenames-api/readme-repo-icon.png
     backgroundColor: '#FAFAFA'
     altText: Logo
-components: {}
+components:
+  schemas:
+    Game:
+      type: object
+      properties:
+        id:
+          description: Unique guid to identify the game
+          type: string
+        code:
+          description: 'This game''s code, can be used by others to join'
+          type: string
+        started:
+          description: Indicates whether the game has started or not
+          type: boolean
+        turn:
+          description: Which team's turn it is to give clues and make guesses
+          $ref: '#/components/schemas/Team'
+        tiles:
+          description: The tiles that players will provide clues and guesses for
+          type: array
+          items:
+            $ref: '#/components/schemas/Tile'
+        people:
+          description: The people that are playing this game
+          type: array
+          items:
+            $ref: '#/components/schemas/Person'
+    CreatePersonRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          description: This person's (code)name
+          type: string
+    Person:
+      type: object
+      properties:
+        id:
+          description: Unique guid to identify the person
+          type: string
+        name:
+          description: This person's (code)name
+          type: string
+        role:
+          description: This person's role
+          $ref: '#/components/schemas/Role'
+        team:
+          description: The team this person belongs to
+          $ref: '#/components/schemas/Team'
+    Role:
+      type: object
+      enum:
+        - SPYMASTER
+        - SPY
+    Team:
+      type: object
+      enum:
+        - RED
+        - BLUE
+        - NEUTRAL
+        - ASSASSIN
+    Tile:
+      type: object
+      properties:
+        id:
+          description: Unique guid to identify the tile
+          type: string
+        word:
+          description: The codename on this tile
+          type: string
+        selected:
+          description: >-
+            Indicates whether the tile has been selected (and so is known to all
+            players)
+          type: boolean
+        team:
+          description: The team this tile belongs to
+          $ref: '#/components/schemas/Team'
 paths:
   /games:
     post:
@@ -21,12 +99,31 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GameRequest'
+              $ref: '#/components/schemas/CreatePersonRequest'
       responses:
         '200':
           description: Newly created game
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GameResponse'
+                $ref: '#/components/schemas/Game'
+  '/games/{code}/people':
+    post:
+      summary: Join game
+      description: Join an existing game
+      tags:
+        - Games
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePersonRequest'
+      responses:
+        '200':
+          description: The existing game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
 tags: []

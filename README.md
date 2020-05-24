@@ -11,3 +11,11 @@
 </p>
 
 # Codenames API
+
+API for the codenames game.
+
+## View API docs
+
+`npm i`
+
+`npm run docs`

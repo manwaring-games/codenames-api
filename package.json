@@ -9,11 +9,11 @@
     "test-circle": "circleci config validate",
     "docs": "concurrently npm:watch-docs npm:serve-docs -c cyan,magenta -k",
     "generate-docs": "swagger-jsdoc -d docs/openapi-spec.yml -o docs/openapi.yml && git add docs",
-    "watch-docs": "watch 'npm run generate-docs' src",
+    "watch-docs": "watch 'npm run generate-docs' src node_modules/@manwaring-games/codenames-common",
     "serve-docs": "live-server docs"
   },
   "dependencies": {
-    "@manwaring-games/codenames-common": "0.0.1",
+    "@manwaring-games/codenames-common": "0.0.2",
     "@manwaring/lambda-wrapper": "^3.5.1",
     "class-validator": "^0.12.2",
     "shortid": "^2.2.15",

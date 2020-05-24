@@ -15,14 +15,14 @@ import { Game } from "./game";
  *          content:
  *            application/json:
  *              schema:
- *                $ref: '#/components/schemas/GameRequest'
+ *                $ref: '#/components/schemas/CreatePersonRequest'
  *        responses:
  *          200:
  *            description: Newly created game
  *            content:
  *              application/json:
  *                schema:
- *                  $ref: '#/components/schemas/GameResponse'
+ *                  $ref: '#/components/schemas/Game'
  */
 export const handler = api(
   async ({ body, success, error, invalid }: ApiSignature) => {

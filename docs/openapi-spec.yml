@@ -7,5 +7,6 @@ info:
     url: https://d1wzvcwrgjaybe.cloudfront.net/repos/games/codenames-api/readme-repo-icon.png
     backgroundColor: "#FAFAFA"
     altText: Logo
-apis: ["src/**/*.ts"]
+apis:
+  ["src/**/*.ts", "node_modules/@manwaring-games/codenames-common/**/*.d.ts"]
 components: {}
