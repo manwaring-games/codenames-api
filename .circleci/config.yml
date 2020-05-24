@@ -13,19 +13,14 @@ jobs:
         description: Stage to deploy to
         type: string
         default: ""
-      # thundra:
-      #   description: Thundra project suffix to use
-      #   type: string
     steps:
       - checkout
       - node/install-packages
       - run:
           name: Deploy api
           command: |
-            # THUNDRA_TOKEN=${THUNDRA_TOKEN_<< parameters.thundra >>}
             STAGE=<< parameters.stage >>
             [[ ! -z "$STAGE" ]] || STAGE=${CIRCLE_BRANCH%%/*}
-            # npm run deploy -- --stage $STAGE --thundra $THUNDRA_TOKEN
             npm run deploy -- --stage $STAGE --thundra $THUNDRA_TOKEN
       # save the .serverless folder to enable looking up & calling the endpoint
       - persist_to_workspace:
@@ -44,7 +39,6 @@ workflows:
       # branch
       - deploy:
           name: deploy-branch
-          # thundra: COACHES_SANDBOX
           context: aws-sandbox
           requires: [node/test]
           filters: &only-branches
@@ -55,7 +49,6 @@ workflows:
       - deploy:
           name: deploy-dev
           stage: dev
-          # thundra: COACHES_DEV
           context: aws-sandbox
           requires: [node/test]
           filters: &only-main
@@ -65,7 +58,6 @@ workflows:
       # - deploy:
       #     name: deploy-prod
       #     stage: prod
-      #     thundra: COACHES_PROD
       #     context: aws-coaches-prod
       #     requires: [deploy-dev]
       #     filters: *only-main
