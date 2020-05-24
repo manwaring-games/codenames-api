@@ -1,0 +1,71 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@2.1.0
+
+jobs:
+  deploy:
+    executor:
+      name: node/default
+      tag: "lts"
+    parameters:
+      stage:
+        description: Stage to deploy to
+        type: string
+        default: ""
+      # thundra:
+      #   description: Thundra project suffix to use
+      #   type: string
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Deploy api
+          command: |
+            # THUNDRA_TOKEN=${THUNDRA_TOKEN_<< parameters.thundra >>}
+            STAGE=<< parameters.stage >>
+            [[ ! -z "$STAGE" ]] || STAGE=${CIRCLE_BRANCH%%/*}
+            # npm run deploy -- --stage $STAGE --thundra $THUNDRA_TOKEN
+            npm run deploy -- --stage $STAGE --thundra $THUNDRA_TOKEN
+      # save the .serverless folder to enable looking up & calling the endpoint
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .serverless
+
+workflows:
+  version: 2
+  test-and-deploy:
+    jobs:
+      # all
+      - node/test:
+          version: "lts"
+
+      # branch
+      - deploy:
+          name: deploy-branch
+          # thundra: COACHES_SANDBOX
+          context: aws-sandbox
+          requires: [node/test]
+          filters: &only-branches
+            branches:
+              ignore: main
+
+      # main - dev
+      - deploy:
+          name: deploy-dev
+          stage: dev
+          # thundra: COACHES_DEV
+          context: aws-sandbox
+          requires: [node/test]
+          filters: &only-main
+            branches:
+              only: main
+      # main - prod
+      # - deploy:
+      #     name: deploy-prod
+      #     stage: prod
+      #     thundra: COACHES_PROD
+      #     context: aws-coaches-prod
+      #     requires: [deploy-dev]
+      #     filters: *only-main
