@@ -1,0 +1,11 @@
+openapi: "3.0.0"
+info:
+  title: Codenames API
+  version: "0.1.0"
+  description: API for the codenames game
+  x-logo:
+    url: https://d1wzvcwrgjaybe.cloudfront.net/repos/games/codenames-api/readme-repo-icon.png
+    backgroundColor: "#FAFAFA"
+    altText: Logo
+apis: ["src/**/*.ts"]
+components: {}
