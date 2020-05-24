@@ -3,24 +3,76 @@ service:
 
 plugins:
   - serverless-webpack
+  - serverless-plugin-iam-checker
+  - serverless-prune-versions
+  - serverless-cloudformation-resource-counter
 
 provider:
   name: aws
   runtime: nodejs12.x
+  logRetentionInDays: 14
   apiGateway:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
 
 custom:
+  # Serverless plugin configurations
+  # https://github.com/manwaring/serverless-prune-versions
+  prune:
+    automatic: true
+    number: 2
+  # https://github.com/drexler/serverless-cloudformation-resource-counter
+  warningThreshold: 100
+  # https://github.com/serverless-heaven/serverless-webpack
   webpack:
-    webpackConfig: ./webpack.config.js
     includeModules: true
+    excludeFiles: src/**/*.test.[t|j]s
 
 functions:
-  hello:
-    handler: handler.hello
+  create-game:
+    handler: src/create-game.handler
     events:
       - http:
-          method: get
-          path: hello
+          path: games
+          method: POST
+          cors: true
+
+  join-game:
+    handler: src/join-game.handler
+    events:
+      - http:
+          path: games/{id}/people
+          method: POST
+          cors: true
+          request: &gameIdRequest
+            parameters:
+              paths:
+                id: true
+
+  start-game:
+    handler: src/start-game.handler
+    events:
+      - http:
+          path: games/{id}/start
+          method: POST
+          cors: true
+          request: *gameIdRequest
+
+  make-guess:
+    handler: src/make-guess.handler
+    events:
+      - http:
+          path: games/{id}/guesses
+          method: POST
+          cors: true
+          request: *gameIdRequest
+
+  connect-to-game:
+    handler: src/connect-to-game.handler
+
+  disconnect-from-game:
+    handler: src/disconnect-from-game.handler
+
+  publish-game-updates:
+    handler: src/publish-game-updates.handler

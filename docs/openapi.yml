@@ -9,5 +9,24 @@ info:
     backgroundColor: '#FAFAFA'
     altText: Logo
 components: {}
-paths: {}
+paths:
+  /games:
+    post:
+      summary: Create game
+      description: Create a new game of Codenames that others can join
+      tags:
+        - Games
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameRequest'
+      responses:
+        '200':
+          description: Newly created game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameResponse'
 tags: []
