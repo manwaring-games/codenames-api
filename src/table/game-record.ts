@@ -12,9 +12,20 @@ export class GameRecord extends GamesTable {
     const params = {
       Key: { gameId: this.gameId, identifiers: this.identifiers },
       TableName: process.env.GAMES_TABLE,
-      UpdateExpression: "Add #version :increment SET #game = :game",
-      ExpressionAttributeNames: { "#version": "version", "#game": "game" },
-      ExpressionAttributeValues: { ":increment": 1, ":game": game },
+      UpdateExpression:
+        "Add #version :increment SET #game = :game, #code = :code, #recordType = :recordType",
+      ExpressionAttributeNames: {
+        "#version": "version",
+        "#game": "game",
+        "#code": "code",
+        "#recordType": "recordType",
+      },
+      ExpressionAttributeValues: {
+        ":increment": 1,
+        ":game": game,
+        ":code": game.code,
+        ":recordType": this.recordType,
+      },
     };
     console.debug("Updating game with params", params);
     return params;

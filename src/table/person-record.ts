@@ -1,4 +1,4 @@
-import { Person } from "@manwaring-games/codenames-common";
+import { Person, Team, Role } from "@manwaring-games/codenames-common";
 import { GamesTable, RecordType } from "./table";
 
 export class PersonRecord extends GamesTable {
@@ -12,11 +12,52 @@ export class PersonRecord extends GamesTable {
     const params = {
       Key: { gameId: this.gameId, identifiers: this.identifiers },
       TableName: process.env.GAMES_TABLE,
-      UpdateExpression: "Add #version :increment SET #person = :person",
-      ExpressionAttributeNames: { "#version": "version", "#person": "person" },
-      ExpressionAttributeValues: { ":increment": 1, ":person": person },
+      UpdateExpression:
+        "Add #version :increment SET #person = :person, #recordType = :recordType",
+      ExpressionAttributeNames: {
+        "#version": "version",
+        "#person": "person",
+        "#recordType": "recordType",
+      },
+      ExpressionAttributeValues: {
+        ":increment": 1,
+        ":person": person,
+        ":recordType": this.recordType,
+      },
     };
     console.debug("Updating person with params", params);
+    return params;
+  }
+
+  getUpdateRoleParams(role: Role) {
+    const params = {
+      Key: { gameId: this.gameId, identifiers: this.identifiers },
+      TableName: process.env.GAMES_TABLE,
+      UpdateExpression: "Add #version :increment SET #person.#role = :role",
+      ExpressionAttributeNames: {
+        "#version": "version",
+        "#person": "person",
+        "#role": "role",
+      },
+      ExpressionAttributeValues: { ":increment": 1, ":role": role },
+    };
+    console.debug("Updating person's role with params", params);
+    return params;
+  }
+
+  getUpdateTeamParams(team: Team) {
+    const params = {
+      Key: { gameId: this.gameId, identifiers: this.identifiers },
+      TableName: process.env.GAMES_TABLE,
+      UpdateExpression: "Add #version :increment SET #person.#team = :team",
+      ExpressionAttributeNames: {
+        "#version": "version",
+        "#person": "person",
+        "#team": "team",
+      },
+      ExpressionAttributeValues: { ":increment": 1, ":team": team },
+    };
+    console.debug("Updating person's team with params", params);
     return params;
   }
 }

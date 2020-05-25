@@ -1,6 +1,7 @@
 import "source-map-support/register";
 import { api, ApiSignature } from "@manwaring/lambda-wrapper";
-import { Game } from "../game";
+import { Person } from "../person";
+import { joinGame, RecordNotFoundError } from "../table";
 
 /**
  *  @swagger
@@ -10,6 +11,13 @@ import { Game } from "../game";
  *        summary: Join game
  *        description: Join an existing game
  *        tags: [Game setup]
+ *        parameters:
+ *          - in: path
+ *            name: code
+ *            description: User-friendly code of the game that is being joined
+ *            required: true
+ *            schema:
+ *              type: string
  *        requestBody:
  *          required: true
  *          content:
@@ -23,15 +31,23 @@ import { Game } from "../game";
  *              application/json:
  *                schema:
  *                  $ref: '#/components/schemas/Game'
+ *          404:
+ *            description: No game with that code was found
  */
 export const handler = api(
-  async ({ body, success, error, invalid }: ApiSignature) => {
+  async ({ body, path, success, error, notFound }: ApiSignature<Person>) => {
     try {
-      const request = new Game();
-      const game = await saveGame(request);
+      const person = new Person(body.name);
+      // TODO validate person
+      // TODO how to get code
+      const game = await joinGame(path.gameId, person);
       return success(game);
     } catch (err) {
-      return error(err);
+      if (err instanceof RecordNotFoundError) {
+        return notFound();
+      } else {
+        return error(err);
+      }
     }
   }
 );

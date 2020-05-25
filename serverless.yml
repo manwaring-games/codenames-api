@@ -18,6 +18,7 @@ provider:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
     LAMBDA_WRAPPER_LOG: true
     GAMES_TABLE: !Ref GamesTable
+    GAME_CODE_INDEX: ${self:custom.codeIndex}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -26,9 +27,15 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:Query
         - dynamodb:DeleteItem
-      Resource: !GetAtt GamesTable.Arn
+      Resource:
+        - !GetAtt GamesTable.Arn
+        - !Join [
+            "/index/",
+            [!GetAtt GamesTable.Arn, "${self:custom.codeIndex}"],
+          ]
 
 custom:
+  codeIndex: code-index
   # Serverless plugin configurations
   # https://github.com/manwaring/serverless-prune-versions
   prune:
@@ -49,17 +56,47 @@ functions:
           path: games
           method: POST
           cors: true
-  # join-game:
-  #   handler: src/game-setup/join-game.handler
-  #   events:
-  #     - http:
-  #         path: games/{id}/people
-  #         method: POST
-  #         cors: true
-  #         request: &gameIdRequest
-  #           parameters:
-  #             paths:
-  #               id: true
+
+  join-game:
+    handler: src/game-setup/join-game.handler
+    events:
+      - http:
+          path: games/{gameId}/people
+          method: POST
+          cors: true
+          request: &gameIdRequest
+            parameters:
+              paths:
+                gameId: true
+
+  choose-team:
+    handler: src/game-setup/choose-team.handler
+    events:
+      - http:
+          path: games/{gameId}/people/{personId}/teams/{team}
+          method: PUT
+          cors: true
+          request:
+            parameters:
+              paths:
+                gameId: true
+                personId: true
+                team: true
+
+  choose-role:
+    handler: src/game-setup/choose-role.handler
+    events:
+      - http:
+          path: games/{gameId}/people/{personId}/roles/{role}
+          method: PUT
+          cors: true
+          request:
+            parameters:
+              paths:
+                gameId: true
+                personId: true
+                role: true
+
   # start-game:
   #   handler: src/game-actions/start-game.handler
   #   events:
@@ -93,11 +130,20 @@ resources:
             AttributeType: S
           - AttributeName: identifiers
             AttributeType: S
+          - AttributeName: code
+            AttributeType: S
         KeySchema:
           - AttributeName: gameId
             KeyType: HASH
           - AttributeName: identifiers
             KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: ${self:custom.codeIndex}
+            KeySchema:
+              - AttributeName: code
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
