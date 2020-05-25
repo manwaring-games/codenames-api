@@ -10,11 +10,23 @@ plugins:
 provider:
   name: aws
   runtime: nodejs12.x
+  stage: ${opt:stage, env:STAGE, env:USER, 'local'}
   logRetentionInDays: 14
   apiGateway:
     minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
   environment:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+    LAMBDA_WRAPPER_LOG: true
+    GAMES_TABLE: !Ref GamesTable
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:Query
+        - dynamodb:DeleteItem
+      Resource: !GetAtt GamesTable.Arn
 
 custom:
   # Serverless plugin configurations
@@ -31,48 +43,61 @@ custom:
 
 functions:
   create-game:
-    handler: src/create-game.handler
+    handler: src/game-setup/create-game.handler
     events:
       - http:
           path: games
           method: POST
           cors: true
+  # join-game:
+  #   handler: src/game-setup/join-game.handler
+  #   events:
+  #     - http:
+  #         path: games/{id}/people
+  #         method: POST
+  #         cors: true
+  #         request: &gameIdRequest
+  #           parameters:
+  #             paths:
+  #               id: true
+  # start-game:
+  #   handler: src/game-actions/start-game.handler
+  #   events:
+  #     - http:
+  #         path: games/{id}/start
+  #         method: POST
+  #         cors: true
+  #         request: *gameIdRequest
+  # make-guess:
+  #   handler: src/game-actions/make-guess.handler
+  #   events:
+  #     - http:
+  #         path: games/{id}/guesses
+  #         method: POST
+  #         cors: true
+  #         request: *gameIdRequest
+  # connect-to-game:
+  #   handler: src/connect-to-game.handler
+  # disconnect-from-game:
+  #   handler: src/disconnect-from-game.handler
+  # publish-game-updates:
+  #   handler: src/publish-game-updates.handler
 
-  join-game:
-    handler: src/join-game.handler
-    events:
-      - http:
-          path: games/{id}/people
-          method: POST
-          cors: true
-          request: &gameIdRequest
-            parameters:
-              paths:
-                id: true
-
-  start-game:
-    handler: src/start-game.handler
-    events:
-      - http:
-          path: games/{id}/start
-          method: POST
-          cors: true
-          request: *gameIdRequest
-
-  make-guess:
-    handler: src/make-guess.handler
-    events:
-      - http:
-          path: games/{id}/guesses
-          method: POST
-          cors: true
-          request: *gameIdRequest
-
-  connect-to-game:
-    handler: src/connect-to-game.handler
-
-  disconnect-from-game:
-    handler: src/disconnect-from-game.handler
-
-  publish-game-updates:
-    handler: src/publish-game-updates.handler
+resources:
+  Resources:
+    GamesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: gameId
+            AttributeType: S
+          - AttributeName: identifiers
+            AttributeType: S
+        KeySchema:
+          - AttributeName: gameId
+            KeyType: HASH
+          - AttributeName: identifiers
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES

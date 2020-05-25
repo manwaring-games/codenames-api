@@ -1,21 +1,10 @@
 import { v4 } from "uuid";
-import { characters, generate } from "shortid";
-import { Tile } from "./tile";
-import { Person } from "./person";
-import { Team } from "./team";
+import { customAlphabet } from "nanoid";
+import { Game as CommonGame, Team } from "@manwaring-games/codenames-common";
 
-characters("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+const nanoid = customAlphabet("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", 5);
 
-export interface Game {
-  id: string;
-  code: string;
-  started: boolean;
-  turn: Team.BLUE | Team.RED;
-  tiles?: Tile[];
-  people?: Person[];
-}
-
-export class Game {
+export class Game implements CommonGame {
   id: string;
   code: string;
   started: boolean;
@@ -23,7 +12,7 @@ export class Game {
 
   constructor() {
     this.id = v4();
-    this.code = generate();
+    this.code = nanoid();
     this.started = false;
     this.turn = Math.random() < 0.5 ? Team.BLUE : Team.RED;
   }

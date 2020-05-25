@@ -1,4 +1,4 @@
-import { Team } from "./team";
+import { Team } from "@manwaring-games/codenames-common";
 
 export class Tile {
   id: string;

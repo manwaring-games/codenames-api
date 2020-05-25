@@ -1,15 +1,15 @@
 import "source-map-support/register";
 import { api, ApiSignature } from "@manwaring/lambda-wrapper";
-import { Game } from "./game";
+import { Game } from "../game";
 
 /**
  *  @swagger
  *  paths:
- *    /games/{code}/people:
+ *    /games/{gameId}/end:
  *      post:
- *        summary: Join game
- *        description: Join an existing game
- *        tags: [Games]
+ *        summary: End turn
+ *        description: Create a new game of Codenames that others can join
+ *        tags: [Game actions]
  *        requestBody:
  *          required: true
  *          content:
@@ -18,7 +18,7 @@ import { Game } from "./game";
  *                $ref: '#/components/schemas/CreatePersonRequest'
  *        responses:
  *          200:
- *            description: The existing game
+ *            description: Newly created game
  *            content:
  *              application/json:
  *                schema:

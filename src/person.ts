@@ -1,21 +1,20 @@
 import { v4 } from "uuid";
-import { Team } from "./team";
+import {
+  Person as CommonPerson,
+  Team,
+  Role,
+} from "@manwaring-games/codenames-common";
 
-export class Person {
+export class Person implements CommonPerson {
   id: string;
   name: string;
-  team?: Team.BLUE | Team.RED;
+  team: Team.BLUE | Team.RED;
   role: Role;
 
   constructor(name: string) {
     this.id = v4();
     this.name = name;
     this.team = Math.random() < 0.5 ? Team.BLUE : Team.RED;
-    this.role = Role.GUESSER;
+    this.role = Role.SPY;
   }
-}
-
-export enum Role {
-  GUESSER = "GUESSER",
-  CLUE_GIVER = "CLUE_GIVER",
 }

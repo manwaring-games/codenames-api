@@ -88,12 +88,101 @@ components:
           description: The team this tile belongs to
           $ref: '#/components/schemas/Team'
 paths:
+  '/games/{gameId}/end':
+    post:
+      summary: End turn
+      description: Create a new game of Codenames that others can join
+      tags:
+        - Game actions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePersonRequest'
+      responses:
+        '200':
+          description: Newly created game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+  '/games/{gameId}/guesses':
+    post:
+      summary: Make guess
+      description: Create a new game of Codenames that others can join
+      tags:
+        - Game actions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePersonRequest'
+      responses:
+        '200':
+          description: Newly created game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+  '/games/{gameId}/start':
+    post:
+      summary: Start game
+      description: Start an existing game
+      tags:
+        - Game actions
+      responses:
+        '200':
+          description: The existing game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+  '/games/{gameId}/people/{personId}/role':
+    put:
+      summary: Update role
+      description: Create a new game of Codenames that others can join
+      tags:
+        - Game setup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePersonRequest'
+      responses:
+        '200':
+          description: Newly created game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
+  '/games/{gameId}/people/{personId}/team':
+    put:
+      summary: Update team
+      description: Create a new game of Codenames that others can join
+      tags:
+        - Game setup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePersonRequest'
+      responses:
+        '200':
+          description: Newly created game
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Game'
   /games:
     post:
       summary: Create game
       description: Create a new game of Codenames that others can join
       tags:
-        - Games
+        - Game setup
       requestBody:
         required: true
         content:
@@ -112,7 +201,7 @@ paths:
       summary: Join game
       description: Join an existing game
       tags:
-        - Games
+        - Game setup
       requestBody:
         required: true
         content:
