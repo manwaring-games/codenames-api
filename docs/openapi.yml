@@ -87,6 +87,9 @@ components:
         team:
           description: The team this tile belongs to
           $ref: '#/components/schemas/Team'
+servers:
+  - url: 'https://yeq7szw1ak.execute-api.us-east-1.amazonaws.com/dev'
+    description: Development server
 paths:
   '/games/{gameId}/end':
     post:

@@ -10,3 +10,6 @@ info:
 apis:
   ["src/**/*.ts", "node_modules/@manwaring-games/codenames-common/**/*.d.ts"]
 components: {}
+servers:
+  - url: https://yeq7szw1ak.execute-api.us-east-1.amazonaws.com/dev
+    description: Development server
