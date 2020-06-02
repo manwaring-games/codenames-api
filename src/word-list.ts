@@ -1,4 +1,10 @@
-const words = [
+export function getWords(count: number): string[] {
+  const words = [...WORDS];
+  words.sort(() => (Math.random() < 0.5 ? -1 : 1));
+  return words.slice(0, count);
+}
+
+const WORDS = [
   "AFRICA",
   "AGENT",
   "AIR",

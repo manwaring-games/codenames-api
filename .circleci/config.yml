@@ -1,13 +1,13 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@2.1.0
+  node: circleci/node@2.1.1
 
 jobs:
   deploy:
     executor:
       name: node/default
-      tag: "lts"
+      tag: lts
     parameters:
       stage:
         description: Stage to deploy to
@@ -30,11 +30,12 @@ jobs:
 
 workflows:
   version: 2
+  
   test-and-deploy:
     jobs:
       # all
       - node/test:
-          version: "lts"
+          version: lts
 
       # branch
       - deploy:

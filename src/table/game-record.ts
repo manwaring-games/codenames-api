@@ -30,4 +30,16 @@ export class GameRecord extends GamesTable {
     console.debug("Updating game with params", params);
     return params;
   }
+
+  getStartGameParams() {
+    const params = {
+      Key: { gameId: this.gameId, identifiers: this.identifiers },
+      TableName: process.env.GAMES_TABLE,
+      UpdateExpression: 'Add #version :increment SET #game.#started = :started',
+      ExpressionAttributeNames: { '#version': 'version', '#game': 'game', "#started": 'started'},
+      ExpressionAttributeValues: { ':increment': 1, ':started': true}
+    }
+    console.debug('Starting game with params', params);
+    return params;
+  }
 }

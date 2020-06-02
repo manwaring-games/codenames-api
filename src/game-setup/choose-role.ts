@@ -42,6 +42,7 @@ import { Role } from "@manwaring-games/codenames-common";
 export const handler = api(
   async ({ path, success, error, invalid }: ApiSignature) => {
     try {
+      // TODO validate game
       const response = await chooseRole(
         path.gameId,
         path.personId,

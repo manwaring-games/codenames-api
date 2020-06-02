@@ -97,14 +97,15 @@ functions:
                 personId: true
                 role: true
 
-  # start-game:
-  #   handler: src/game-actions/start-game.handler
-  #   events:
-  #     - http:
-  #         path: games/{id}/start
-  #         method: POST
-  #         cors: true
-  #         request: *gameIdRequest
+  start-game:
+    handler: src/game-actions/start-game.handler
+    events:
+      - http:
+          path: games/{gameId}/start
+          method: POST
+          cors: true
+          request: *gameIdRequest
+
   # make-guess:
   #   handler: src/game-actions/make-guess.handler
   #   events:

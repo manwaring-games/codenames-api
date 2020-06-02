@@ -38,9 +38,9 @@ export const handler = api(
   async ({ body, path, success, error, notFound }: ApiSignature<Person>) => {
     try {
       const person = new Person(body.name);
-      // TODO validate person
-      // TODO how to get code
-      const game = await joinGame(path.gameId, person);
+      const code = path?.gameId?.toUpperCase();
+      // TODO validate person && code
+      const game = await joinGame(code, person);
       return success(game);
     } catch (err) {
       if (err instanceof RecordNotFoundError) {
