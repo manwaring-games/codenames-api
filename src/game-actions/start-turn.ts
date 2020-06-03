@@ -1,7 +1,9 @@
 import "source-map-support/register";
+import { CreateClueRequest } from "@manwaring-games/codenames-common";
 import { api, ApiSignature } from "@manwaring/lambda-wrapper";
-import { startGame } from "../table";
+import { startTurn } from "../table";
 import { Turn } from "../turn";
+import { Clue } from "../clue";
 
 /**
  *  @swagger
@@ -32,12 +34,18 @@ import { Turn } from "../turn";
  *                schema:
  *                  $ref: '#/components/schemas/Game'
  */
-export const handler = api(async ({ path, success, error, invalid }: ApiSignature) => {
-  try {
-    // const { gameId } = path;
-    // const turn = new Turn();
-    return success();
-  } catch (err) {
-    return error(err);
+export const handler = api(
+  async ({ path, body, success, error, invalid }: ApiSignature<CreateClueRequest>) => {
+    try {
+      const { gameId } = path;
+      const { team, word, tiles } = body;
+      const clue = new Clue(word, tiles);
+      const turn = new Turn(team, clue);
+      const game = await startTurn(gameId, turn);
+      // TODO get existing turns, set active one to false
+      return success(game);
+    } catch (err) {
+      return error(err);
+    }
   }
-});
+);

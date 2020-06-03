@@ -29,10 +29,7 @@ provider:
         - dynamodb:DeleteItem
       Resource:
         - !GetAtt GamesTable.Arn
-        - !Join [
-            "/index/",
-            [!GetAtt GamesTable.Arn, "${self:custom.codeIndex}"],
-          ]
+        - !Join ["/index/", [!GetAtt GamesTable.Arn, "${self:custom.codeIndex}"]]
 
 custom:
   codeIndex: code-index
@@ -102,6 +99,15 @@ functions:
     events:
       - http:
           path: games/{gameId}/start
+          method: POST
+          cors: true
+          request: *gameIdRequest
+
+  start-turn:
+    handler: src/game-actions/start-turn.handler
+    events:
+      - http:
+          path: games/{gameId}/turns
           method: POST
           cors: true
           request: *gameIdRequest

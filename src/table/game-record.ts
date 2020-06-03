@@ -1,4 +1,4 @@
-import { Game } from "@manwaring-games/codenames-common";
+import { Game, Team } from "@manwaring-games/codenames-common";
 import { GamesTable, RecordType } from "./table";
 
 export class GameRecord extends GamesTable {
@@ -31,15 +31,21 @@ export class GameRecord extends GamesTable {
     return params;
   }
 
-  getStartGameParams() {
+  getStartGameParams(startTeam: Team) {
     const params = {
       Key: { gameId: this.gameId, identifiers: this.identifiers },
       TableName: process.env.GAMES_TABLE,
-      UpdateExpression: 'Add #version :increment SET #game.#started = :started',
-      ExpressionAttributeNames: { '#version': 'version', '#game': 'game', "#started": 'started'},
-      ExpressionAttributeValues: { ':increment': 1, ':started': true}
-    }
-    console.debug('Starting game with params', params);
+      UpdateExpression:
+        "Add #version :increment SET #game.#started = :started, #game.#startTeam = :startTeam",
+      ExpressionAttributeNames: {
+        "#version": "version",
+        "#game": "game",
+        "#started": "started",
+        "#startTeam": "startTeam",
+      },
+      ExpressionAttributeValues: { ":increment": 1, ":started": true, ":startTeam": startTeam },
+    };
+    console.debug("Starting game with params", params);
     return params;
   }
 }

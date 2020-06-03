@@ -1,6 +1,6 @@
 import { DynamoDB } from "aws-sdk";
 import { CustomError } from "ts-custom-error";
-import { Game, Person, Role, Team, Tile, Turn } from "@manwaring-games/codenames-common";
+import { Game, Person, Role, Team, Tile, Turn, Clue } from "@manwaring-games/codenames-common";
 import { GameRecord } from "./game-record";
 import { PersonRecord } from "./person-record";
 import { GamesTable, RecordType } from "./table";
@@ -18,14 +18,20 @@ export async function createGame(game: Game, person: Person): Promise<Game> {
   return { ...game, people: [person] };
 }
 
-export async function startGame(gameId: string, tiles: Tile[], turn: Turn): Promise<Game> {
-  console.debug("Starting game", gameId);
-  const gamePromise = table.update(new GameRecord(gameId).getStartGameParams()).promise();
+export async function startGame(gameId: string, startTeam: Team, tiles: Tile[]): Promise<Game> {
+  console.debug("Starting game", gameId, startTeam, tiles);
+  const gamePromise = table.update(new GameRecord(gameId).getStartGameParams(startTeam)).promise();
   const tilePromises = tiles.map((tile) =>
     table.update(new TileRecord(gameId, tile.id).getUpdateParams(tile)).promise()
   );
-  const turnPromise = table.update(new TurnRecord(gameId, turn.id).getUpdateParams(turn)).promise();
-  await Promise.all([gamePromise, ...tilePromises, turnPromise]);
+  await Promise.all([gamePromise, ...tilePromises]);
+  return getAllGameRecords(gameId);
+}
+
+export async function startTurn(gameId: string, turn: Turn): Promise<Game> {
+  console.debug("Starting turn", gameId, turn);
+  const turnRecord = new TurnRecord(gameId, turn.id);
+  await table.update(turnRecord.getUpdateParams(turn)).promise();
   return getAllGameRecords(gameId);
 }
 
@@ -90,7 +96,6 @@ export async function getAllGameRecords(gameId: string): Promise<Game> {
   });
   game.tiles = tiles;
   game.turns = turns;
-  game.active;
   return { ...game, people };
 }
 

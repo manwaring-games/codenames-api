@@ -5,12 +5,13 @@ export class Turn implements CommonTurn {
   id: string;
   team: Team;
   active: boolean;
-  clue?: Clue;
+  clue: Clue;
   guesses?: Guess[];
 
-  constructor(team: Team, active: boolean) {
+  constructor(team: Team, clue: Clue) {
     this.id = v4();
     this.team = team;
-    this.active = active;
+    this.active = true;
+    this.clue = clue;
   }
 }

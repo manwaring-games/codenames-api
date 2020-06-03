@@ -10,18 +10,6 @@ info:
     altText: Logo
 components:
   schemas:
-    CreateClueRequest:
-      type: object
-      required:
-        - word
-        - tiles
-      properties:
-        word:
-          description: The single word clue
-          type: string
-        tiles:
-          description: How many tiles this clue is for
-          type: number
     Clue:
       type: object
       properties:
@@ -34,6 +22,22 @@ components:
         tiles:
           description: How many tiles this clue is for
           type: number
+    CreateClueRequest:
+      type: object
+      required:
+        - word
+        - tiles
+        - team
+      properties:
+        word:
+          description: The single word clue
+          type: string
+        tiles:
+          description: How many tiles this clue is for
+          type: number
+        team:
+          description: Which team is giving this clue
+          $ref: '#/components/schemas/Team'
     Game:
       type: object
       properties:
@@ -46,6 +50,9 @@ components:
         started:
           description: Indicates whether the game has started or not
           type: boolean
+        startTeam:
+          description: Indicates which team started the game
+          $ref: '#/components/schemas/Team'
         tiles:
           description: The tiles that players will provide clues and guesses for
           type: array
@@ -59,14 +66,6 @@ components:
         turns:
           description: Active and past turns
           $ref: '#/components/schemas/Turns'
-    Turns:
-      type: object
-      properties:
-        active:
-          description: Information about the active turn
-          $ref: >-
-            #/components/schemas/Turn past: description: Information about past
-            turns type: array items: $ref: 
     Guess:
       type: object
       properties:
@@ -148,16 +147,40 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Guess'
+    Turns:
+      type: object
+      properties:
+        active:
+          description: Information about the active turn
+          $ref: '#/components/schemas/Turn'
+        past:
+          description: Information about past turns
+          type: array
+          items:
+            $ref: '#/components/schemas/Turn'
 servers:
   - url: 'https://yeq7szw1ak.execute-api.us-east-1.amazonaws.com/dev'
     description: Development server
 paths:
-  '/games/{gameId}/end':
+  '/games/{gameId}/turns/{turnId}/end':
     post:
       summary: End turn
       description: Create a new game of Codenames that others can join
       tags:
         - Game actions
+      parameters:
+        - in: path
+          name: gameId
+          description: ID of the game being played
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: turnId
+          description: ID of the turn the guess is for
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -171,12 +194,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Game'
-  '/games/{gameId}/guesses':
+  '/games/{gameId}/turns/{turnId}/guesses':
     post:
       summary: Make guess
       description: Create a new game of Codenames that others can join
       tags:
         - Game actions
+      parameters:
+        - in: path
+          name: gameId
+          description: ID of the game being played
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: turnId
+          description: ID of the turn the guess is for
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:

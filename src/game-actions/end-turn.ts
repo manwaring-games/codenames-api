@@ -5,11 +5,24 @@ import { Game } from "../game";
 /**
  *  @swagger
  *  paths:
- *    /games/{gameId}/end:
+ *    /games/{gameId}/turns/{turnId}/end:
  *      post:
  *        summary: End turn
  *        description: Create a new game of Codenames that others can join
  *        tags: [Game actions]
+ *        parameters:
+ *          - in: path
+ *            name: gameId
+ *            description: ID of the game being played
+ *            required: true
+ *            schema:
+ *              type: string
+ *          - in: path
+ *            name: turnId
+ *            description: ID of the turn the guess is for
+ *            required: true
+ *            schema:
+ *              type: string
  *        requestBody:
  *          required: true
  *          content:
@@ -24,14 +37,12 @@ import { Game } from "../game";
  *                schema:
  *                  $ref: '#/components/schemas/Game'
  */
-export const handler = api(
-  async ({ body, success, error, invalid }: ApiSignature) => {
-    try {
-      const request = new Game();
-      const game = await saveGame(request);
-      return success(game);
-    } catch (err) {
-      return error(err);
-    }
+export const handler = api(async ({ body, success, error, invalid }: ApiSignature) => {
+  try {
+    const request = new Game();
+    const game = await saveGame(request);
+    return success(game);
+  } catch (err) {
+    return error(err);
   }
-);
+});
