@@ -39,18 +39,12 @@ import { Role } from "@manwaring-games/codenames-common";
  *                schema:
  *                  $ref: '#/components/schemas/Game'
  */
-export const handler = api(
-  async ({ path, success, error, invalid }: ApiSignature) => {
-    try {
-      // TODO validate game
-      const response = await chooseRole(
-        path.gameId,
-        path.personId,
-        path.role as Role
-      );
-      return success(response);
-    } catch (err) {
-      return error(err);
-    }
+export const handler = api(async ({ path, success, error, invalid }: ApiSignature) => {
+  try {
+    // TODO validate game
+    const response = await chooseRole(path.gameId, path.personId, path.role as Role);
+    return success(response);
+  } catch (err) {
+    return error(err);
   }
-);
+});

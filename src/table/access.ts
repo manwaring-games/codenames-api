@@ -25,14 +25,14 @@ export async function startGame(gameId: string, startTeam: Team, tiles: Tile[]):
     table.update(new TileRecord(gameId, tile.id).getUpdateParams(tile)).promise()
   );
   await Promise.all([gamePromise, ...tilePromises]);
-  return getAllGameRecords(gameId);
+  return getFullGame(gameId);
 }
 
 export async function startTurn(gameId: string, turn: Turn): Promise<Game> {
   console.debug("Starting turn", gameId, turn);
   const turnRecord = new TurnRecord(gameId, turn.id);
   await table.update(turnRecord.getUpdateParams(turn)).promise();
-  return getAllGameRecords(gameId);
+  return getFullGame(gameId);
 }
 
 export async function joinGame(code: string, person: Person): Promise<Game> {
@@ -45,7 +45,7 @@ export async function joinGame(code: string, person: Person): Promise<Game> {
   const game = (res.Items[0] as GameRecord).game;
   const personRecord = new PersonRecord(game.id, person.id);
   await table.update(personRecord.getUpdateParams(person)).promise();
-  return getAllGameRecords(game.id);
+  return getFullGame(game.id);
 }
 
 export async function chooseRole(gameId: string, personId: string, role: Role): Promise<Game> {
@@ -53,26 +53,47 @@ export async function chooseRole(gameId: string, personId: string, role: Role): 
   console.debug("Choosing role", gameId, personId, role);
   const personRecord = new PersonRecord(gameId, personId);
   await table.update(personRecord.getUpdateRoleParams(role)).promise();
-  return getAllGameRecords(gameId);
+  return getFullGame(gameId);
 }
 
 export async function chooseTeam(gameId: string, personId: string, team: Team): Promise<Game> {
   console.debug("Choosing team", gameId, personId, team);
   const personRecord = new PersonRecord(gameId, personId);
   await table.update(personRecord.getUpdateTeamParams(team)).promise();
-  return getAllGameRecords(gameId);
+  return getFullGame(gameId);
 }
 
-export async function getAllGameRecords(gameId: string): Promise<Game> {
+export async function subscribeToUpdates(
+  gameId: string,
+  personId: string,
+  connectionId: string
+): Promise<void> {
+  console.debug("Subscribing to updates", gameId, personId);
+  const personRecord = new PersonRecord(gameId, personId);
+  await table.update(personRecord.getAddWebsocketSubscriptionParams(connectionId)).promise();
+}
+
+export async function getAllGameRecords(gameId: string): Promise<GamesTable[]> {
   console.debug("Getting all game records", gameId);
   const gamesTable = new GamesTable(gameId);
   const response = await table.query(gamesTable.getAllRecordParams()).promise();
-  console.debug(response);
+  return response.Items as GamesTable[];
+}
+
+export async function getFullGame(gameId: string): Promise<Game> {
+  console.debug("Getting all game records", gameId);
+  const gamesTable = new GamesTable(gameId);
+  const response = await table.query(gamesTable.getAllRecordParams()).promise();
+  const records = response.Items;
+  return gameRecordsToResponse(records as GamesTable[]);
+}
+
+export function gameRecordsToResponse(records: GamesTable[]): Game {
   let game;
   let people = [];
   let tiles = [];
   let turns = { active: undefined, past: [] };
-  response.Items.forEach((record) => {
+  records.forEach((record) => {
     const recordType = (record as GamesTable).recordType;
     switch (recordType) {
       case RecordType.GAME:
@@ -94,9 +115,7 @@ export async function getAllGameRecords(gameId: string): Promise<Game> {
         break;
     }
   });
-  game.tiles = tiles;
-  game.turns = turns;
-  return { ...game, people };
+  return { ...game, people, tiles, turns };
 }
 
 export class RecordNotFoundError extends CustomError {

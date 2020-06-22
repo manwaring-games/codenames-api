@@ -38,18 +38,12 @@ import { chooseTeam } from "../table";
  *                schema:
  *                  $ref: '#/components/schemas/Game'
  */
-export const handler = api(
-  async ({ path, success, error, invalid }: ApiSignature) => {
-    try {
-      // TODO validate team
-      const response = await chooseTeam(
-        path.gameId,
-        path.personId,
-        path.team as Team
-      );
-      return success(response);
-    } catch (err) {
-      return error(err);
-    }
+export const handler = api(async ({ path, success, error, invalid }: ApiSignature) => {
+  try {
+    // TODO validate team
+    const response = await chooseTeam(path.gameId, path.personId, path.team as Team);
+    return success(response);
+  } catch (err) {
+    return error(err);
   }
-);
+});

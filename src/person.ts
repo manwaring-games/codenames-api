@@ -1,15 +1,12 @@
 import { v4 } from "uuid";
-import {
-  Person as CommonPerson,
-  Team,
-  Role,
-} from "@manwaring-games/codenames-common";
+import { Person as CommonPerson, Team, Role } from "@manwaring-games/codenames-common";
 
 export class Person implements CommonPerson {
   id: string;
   name: string;
   team: Team.BLUE | Team.RED;
   role: Role;
+  connectionId: string;
 
   constructor(name: string) {
     this.id = v4();

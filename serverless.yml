@@ -19,7 +19,18 @@ provider:
     LAMBDA_WRAPPER_LOG: true
     GAMES_TABLE: !Ref GamesTable
     GAME_CODE_INDEX: ${self:custom.codeIndex}
+    GAME_UPDATED_TOPIC: !Ref GameUpdated
+    APIGW_BASE_ENDPOINT: !Join
+      - ""
+      - - Ref: WebsocketsApi
+        - .execute-api.
+        - Ref: AWS::Region
+        - .amazonaws.com/
+        - ${self:provider.stage}
   iamRoleStatements:
+    - Effect: Allow
+      Action: sns:Publish
+      Resource: !Ref GameUpdated
     - Effect: Allow
       Action:
         - dynamodb:GetItem
@@ -33,6 +44,7 @@ provider:
 
 custom:
   codeIndex: code-index
+  gameUpdatedTopic: game-updated-${self:provider.stage}
   # Serverless plugin configurations
   # https://github.com/manwaring/serverless-prune-versions
   prune:
@@ -120,15 +132,35 @@ functions:
   #         method: POST
   #         cors: true
   #         request: *gameIdRequest
-  # connect-to-game:
-  #   handler: src/connect-to-game.handler
-  # disconnect-from-game:
-  #   handler: src/disconnect-from-game.handler
-  # publish-game-updates:
-  #   handler: src/publish-game-updates.handler
+  # end-turn:
+  #   handler: src/game-actions/end-turn.handler
+
+  subscribe-to-updates:
+    handler: src/websocket/subscribe-to-updates.handler
+    events:
+      - websocket: $connect
+
+  handle-game-updates:
+    handler: src/table/handle-game-updates.handler
+    events:
+      - stream:
+          type: dynamodb
+          arn: !GetAtt GamesTable.StreamArn
+
+  publish-game-updates:
+    handler: src/websocket/publish-game-updates.handler
+    events:
+      - sns:
+          arn: !Ref GameUpdated
+          topicName: ${self:custom.gameUpdatedTopic}
 
 resources:
   Resources:
+    GameUpdated:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:custom.gameUpdatedTopic}
+
     GamesTable:
       Type: AWS::DynamoDB::Table
       Properties:

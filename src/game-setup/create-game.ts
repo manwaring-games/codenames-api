@@ -26,16 +26,14 @@ import { createGame } from "../table";
  *                schema:
  *                  $ref: '#/components/schemas/Game'
  */
-export const handler = api(
-  async ({ body, success, error }: ApiSignature<Person>) => {
-    try {
-      const game = new Game();
-      const person = new Person(body.name);
-      // TODO validate person
-      const response = await createGame(game, person);
-      return success(response);
-    } catch (err) {
-      return error(err);
-    }
+export const handler = api(async ({ body, success, error }: ApiSignature<Person>) => {
+  try {
+    const game = new Game();
+    const person = new Person(body.name);
+    // TODO validate person
+    const response = await createGame(game, person);
+    return success(response);
+  } catch (err) {
+    return error(err);
   }
-);
+});
