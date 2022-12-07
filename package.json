@@ -31,7 +31,7 @@
     "fork-ts-checker-webpack-plugin": "^5.0.4",
     "husky": "^4.2.5",
     "live-server": "^1.2.1",
-    "serverless": "^1.73.1",
+    "serverless": "^3.25.1",
     "serverless-cloudformation-resource-counter": "^1.0.3",
     "serverless-plugin-iam-checker": "^1.0.5",
     "serverless-prune-versions": "^0.1.14",
