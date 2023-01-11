@@ -15,7 +15,7 @@
   "dependencies": {
     "@manwaring-games/codenames-common": "0.0.10",
     "@manwaring/lambda-wrapper": "^3.6.3",
-    "class-validator": "^0.12.2",
+    "class-validator": "^0.14.0",
     "nanoid": "^3.1.10",
     "source-map-support": "^0.5.19",
     "ts-custom-error": "^3.1.1",
